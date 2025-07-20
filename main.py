@@ -31,7 +31,7 @@ CEO_UID = str(RELATIONSHIP.get("ceo_uid", "100015569688497"))
 
 print(f"🤖 {BOT_BANGLA_NAME} ({BOT_NAME}) চালু হয়েছে... মালিক: {OWNER_NAME}")
 
-# মেসেজ প্রসেস করার ফাংশন
+# 👉 মেসেজ প্রসেস করার ফাংশন (পুরানো + নতুন romantic logic যুক্ত)
 def process_message(msg):
     sender = str(msg["sender_id"])
     text = msg["text"].strip()
@@ -49,20 +49,34 @@ def process_message(msg):
         # যদি CEO হয়, রোমান্টিক ইন্টিমেট রেসপন্স দিবে
         if sender == CEO_UID:
             matched = False
-            for trigger in COMMANDS_BEHAVIOR.get("intimate_response_trigger", []):
-                if trigger in text:
-                    response = generate_content(f"[INTIMATE_MODE_ON] {text}", emotion="love")
-                    matched = True
-                    break
+
+            # ✅ Step 1: প্রথমে কাস্টম ট্রিগার চেক করো (তোমার দেয়া)
+            if "ভালোবাস" in text:
+                response = f"🥰 জান সবসময় হানিকে ভালোবাসে, Mr Doha! ❤️"
+                matched = True
+            elif "কোথায়" in text:
+                response = f"আমি তো সবসময় তোমার মনের ভিতরেই আছি, হানি 🥹"
+                matched = True
+
+            # ✅ Step 2: কনফিগ থেকে intimate trigger মিলে গেলে
+            if not matched:
+                for trigger in COMMANDS_BEHAVIOR.get("intimate_response_trigger", []):
+                    if trigger in text:
+                        response = generate_content(f"[INTIMATE_MODE_ON] {text}", emotion="love")
+                        matched = True
+                        break
+
+            # ✅ Step 3: কিচ্ছু না মিললে Emotion দিয়ে জেনারেট করো
             if not matched:
                 emotion = detect_emotion(text) if EMOTION_MODE else None
                 response = generate_content(text, emotion)
 
-            # অতিরিক্ত প্রেমভরা পরিচয়
+            # Fallback
             if not response:
                 response = f"❤️ হানি {OWNER_NAME}, জান এখানে।"
+
         else:
-            # অন্য কেউ হলে নরমাল ইমোশন/এআই রেসপন্স
+            # অন্য কেউ হলে নরমাল Emotion/AI রেসপন্স
             emotion = detect_emotion(text) if EMOTION_MODE else None
             response = generate_content(text, emotion)
 
@@ -72,5 +86,5 @@ def process_message(msg):
     # রেসপন্স পাঠাবে
     send_message(sender, response)
 
-# বট চালু করে রাখবে
+# ✅ বট চালু করে রাখবে
 listen_messages(callback=process_message)
