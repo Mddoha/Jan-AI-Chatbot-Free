@@ -1,14 +1,41 @@
 {
   "owner_name": "Mr. Doha",
   "bot_name": "Jan",
+  "bot_bangla_name": "জান",
   "bot_nickname": "আভা",
   "prefix": "হানি",
-  "facebook_session": "PASTE_YOUR_FB_TOKEN_HERE",
-  "allowed_users": [
-    "1000XXXXXXXXXXX", 
-    "1000YYYYYYYYYYY", 
-    "1000ZZZZZZZZZZZ"
-  ],
+  "facebook_session": "EABJyyjJTUDIBPAt8udXYIkstq1U6bbkfpYUN4pvJdeS6gyO7VXXECs0o8ygidwXn6oe5UvEu6AlSAopNn1gqp3aWZCiU4XaZBmpyS0nnvpCZBmmXibmYVsxJ1MGYVbZBsW5r03ZCElQjKE3R8whLgKsWKFJIHKzofqIy2IBYgiJeSXxdM1nrTFMignJZCGu13GDNHVuJs2eK0hWlx2XNNoeaLxuM7Uh3kNeuUKRhOlIunaOzpVazNOIe4ZD",
+  "bot_uid": "109595127168132",
   "language": "bn",
-  "emotion_mode": true
+  "emotion_mode": true,
+  "contact": {
+    "whatsapp": "01855887214",
+    "imo": "01855887214",
+    "telegram": "01855887214",
+    "gmail": "Mdsamsuddohasabbir@gmail.com"
+  },
+  "allowed_users": [
+    "100015569688497",
+    "100050971370676"
+  ],
+  "OPERATOR": [
+    "100015569688497",
+    "100050971370676"
+  ],
+  "ADMINBOT": [
+    "100015569688497",
+    "100050971370676"
+  ],
+  "OWNER": [
+    "100015569688497"
+  ],
+  "APPROVED": [],
+  "disabledcmds": [],
+  "disabledevents": [],
+  "autoRestart": true,
+  "developermode": false,
+  "notification": true,
+  "approval": false,
+  "note": "make sure that the bot name you entered is all lowercase",
+  "notice": "Do not change author name and owner uid. Otherwise bot may not work"
 }
