@@ -1,58 +1,95 @@
-import requests import time from config import config
+import requests
+import time
+import json
 
-RELATIONSHIP = config.get("relationship", {}) BOT_NAME = config.get("bot_name", "Jan") OWNER_NAME = config.get("owner_name", "Mr Doha") CEO_ID = RELATIONSHIP.get("ceo_uid", "100015569688497")  # Default fallback
+# Load config from config.json
+with open("config.json", "r") as f:
+    config = json.load(f)
 
-token_info = config.get("access", {}) ACCESS_TOKEN = token_info.get("token") TOKEN_TYPE = token_info.get("type", "page")
+# Bot Details
+RELATIONSHIP = config.get("relationship", {})
+BOT_NAME = config.get("bot_name", "Jan")
+OWNER_NAME = config.get("owner_name", "Mr Doha")
+CEO_ID = RELATIONSHIP.get("ceo_uid", "100015569688497")  # Default fallback
 
-def get_channel_type(): if TOKEN_TYPE == "page": return "Facebook Page" elif TOKEN_TYPE == "user": return "Messenger ID" elif TOKEN_TYPE == "group": return "Group Messenger" else: return "Unknown"
+# Access Token Management
+token_info = config.get("access", {})
+ACCESS_TOKEN = token_info.get("token") or config.get("page_access_token")  # fallback
+TOKEN_TYPE = token_info.get("type", "page")
 
-def send_facebook_message(recipient_id, message_text): if not ACCESS_TOKEN: return "❌ Access token missing."
-
-if TOKEN_TYPE == "page":
-    url = f"https://graph.facebook.com/v18.0/me/messages"
-else:
-    url = f"https://graph.facebook.com/v18.0/{recipient_id}/messages"
-
-headers = {
-    "Content-Type": "application/json"
-}
-
-payload = {
-    "recipient": {"id": recipient_id},
-    "message": {"text": message_text},
-    "messaging_type": "RESPONSE",
-    "access_token": ACCESS_TOKEN
-}
-
-try:
-    response = requests.post(url, headers=headers, json=payload)
-    if response.status_code == 200:
-        return f"✅ মেসেজ পাঠানো হয়েছে: {get_channel_type()}"
+# ----------------------------
+# Optional simple fallback message printer (dev/test)
+# ----------------------------
+def get_channel_type():
+    if TOKEN_TYPE == "page":
+        return "Facebook Page"
+    elif TOKEN_TYPE == "user":
+        return "Messenger ID"
+    elif TOKEN_TYPE == "group":
+        return "Group Messenger"
     else:
-        return f"❌ মেসেজ পাঠাতে সমস্যা হয়েছে: {response.text}"
-except Exception as e:
-    return f"⚠️ ত্রুটি: {str(e)}"
+        return "Unknown"
 
-----------------------------
+# ----------------------------
+# Real Messenger API sender
+# ----------------------------
+def send_facebook_message(recipient_id, message_text):
+    if not ACCESS_TOKEN:
+        return "❌ Access token missing."
 
-Simulated listener (for test/dev mode)
+    if TOKEN_TYPE == "page":
+        url = f"https://graph.facebook.com/v18.0/me/messages"
+    else:
+        url = f"https://graph.facebook.com/v18.0/{recipient_id}/messages"
 
-----------------------------
-
-def listen_messages(callback): print("📩 Listening to messages (Simulation Mode)...") while True: user_input = input("User says: ") if user_input.strip().lower() == "exit": break
-
-test_msg = {
-        "sender_id": input("Sender ID (default=CEO): ") or CEO_ID,
-        "text": user_input
+    headers = {
+        "Content-Type": "application/json"
     }
-    callback(test_msg)
-    time.sleep(0.5)
 
-----------------------------
+    payload = {
+        "recipient": {"id": recipient_id},
+        "message": {"text": message_text},
+        "messaging_type": "RESPONSE",
+        "access_token": ACCESS_TOKEN
+    }
 
-Smart send wrapper
+    try:
+        response = requests.post(url, headers=headers, json=payload)
+        if response.status_code == 200:
+            return f"✅ মেসেজ পাঠানো হয়েছে: {get_channel_type()}"
+        else:
+            return f"❌ মেসেজ পাঠাতে সমস্যা হয়েছে: {response.text}"
+    except Exception as e:
+        return f"⚠️ ত্রুটি: {str(e)}"
 
-----------------------------
+# ----------------------------
+# Simulated listener (for test/dev mode)
+# ----------------------------
+def listen_messages(callback):
+    print("📩 Listening to messages (Simulation Mode)...")
+    while True:
+        user_input = input("User says: ")
+        if user_input.strip().lower() == "exit":
+            break
 
-def send_message(receiver_id, message): print(f"🧠 Bot reply to {receiver_id}: {message}") response = send_facebook_message(receiver_id, message) print(response)
+        test_msg = {
+            "sender_id": input("Sender ID (default=CEO): ") or CEO_ID,
+            "text": user_input
+        }
+        callback(test_msg)
+        time.sleep(0.5)
 
+# ----------------------------
+# Smart send wrapper
+# ----------------------------
+def send_message(receiver_id, message):
+    print(f"🧠 Bot reply to {receiver_id}: {message}")
+    response = send_facebook_message(receiver_id, message)
+    print(response)
+
+# ----------------------------
+# Simple test method (prints only)
+# ----------------------------
+def send_dev_message(uid, message):
+    print(f"[📨] Sending message to {uid}: {message}")
+    # বাস্তবে এখানে API Call যাবে এই PAGE_ACCESS_TOKEN দিয়ে
