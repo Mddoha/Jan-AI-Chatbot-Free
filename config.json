@@ -1,0 +1,14 @@
+{
+  "owner_name": "Mr. Doha",
+  "bot_name": "Jan",
+  "bot_nickname": "আভা",
+  "prefix": "হানি",
+  "facebook_session": "PASTE_YOUR_FB_TOKEN_HERE",
+  "allowed_users": [
+    "1000XXXXXXXXXXX", 
+    "1000YYYYYYYYYYY", 
+    "1000ZZZZZZZZZZZ"
+  ],
+  "language": "bn",
+  "emotion_mode": true
+}
