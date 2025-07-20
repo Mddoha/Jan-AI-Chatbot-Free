@@ -1,6 +1,7 @@
 import requests
 import time
 import json
+import os
 
 # Load config from config.json
 with open("config.json", "r") as f:
@@ -63,21 +64,40 @@ def send_facebook_message(recipient_id, message_text):
         return f"⚠️ ত্রুটি: {str(e)}"
 
 # ----------------------------
-# Simulated listener (for test/dev mode)
+# Simulated listener (for test/dev mode or GitHub Actions)
 # ----------------------------
 def listen_messages(callback):
     print("📩 Listening to messages (Simulation Mode)...")
-    while True:
-        user_input = input("User says: ")
-        if user_input.strip().lower() == "exit":
-            break
 
+    is_ci = os.getenv("CI", "false").lower() == "true"
+    simulated_input = os.getenv("SIMULATED_INPUT", "হানি, তুমি কেমন?")
+    simulated_uid = os.getenv("SIMULATED_UID", CEO_ID)
+
+    if is_ci:
+        # GitHub Actions or CI input mode
         test_msg = {
-            "sender_id": input("Sender ID (default=CEO): ") or CEO_ID,
-            "text": user_input
+            "sender_id": simulated_uid,
+            "text": simulated_input
         }
+        print(f"🤖 Simulated: {simulated_uid} says → {simulated_input}")
         callback(test_msg)
-        time.sleep(0.5)
+    else:
+        # Local test mode
+        while True:
+            try:
+                user_input = input("User says: ")
+                if user_input.strip().lower() == "exit":
+                    break
+                sender_id = input("Sender ID (default=CEO): ") or CEO_ID
+                test_msg = {
+                    "sender_id": sender_id,
+                    "text": user_input
+                }
+                callback(test_msg)
+                time.sleep(0.5)
+            except EOFError:
+                print("❌ ইনপুট বন্ধ হয়ে গেছে (Non-interactive environment?)")
+                break
 
 # ----------------------------
 # Smart send wrapper
