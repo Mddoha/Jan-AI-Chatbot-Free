@@ -1,4 +1,5 @@
 import json
+import os
 from utils.facebook_api import listen_messages, send_message
 from utils.commands import handle_command
 from utils.emotion_handler import detect_emotion
@@ -31,17 +32,15 @@ CEO_UID = str(RELATIONSHIP.get("ceo_uid", "100015569688497"))
 
 print(f"🤖 {BOT_BANGLA_NAME} ({BOT_NAME}) চালু হয়েছে... মালিক: {OWNER_NAME}")
 
-# 📩 মেসেজ প্রসেস করার ফাংশন (পুরানো + নতুন romantic logic যুক্ত)
+# 📩 মেসেজ প্রসেস করার ফাংশন
 def process_message(msg):
     sender = str(msg["sender_id"])
     text = msg["text"].strip()
 
-    # অনুমোদিত ইউজার নয়? তাহলে কিছুই করবে না
     if sender not in ALLOWED_USERS:
         print(f"❌ অনুমতি নেই: {sender}")
         return
 
-    # যদি কমান্ড হয়, তাহলে হ্যান্ডেল করবে
     if text.startswith(PREFIX):
         command = text[len(PREFIX):].strip()
         try:
@@ -49,11 +48,9 @@ def process_message(msg):
         except TypeError:
             response = handle_command(command)
     else:
-        # যদি CEO হয়, রোমান্টিক ইন্টিমেট রেসপন্স দিবে
         if sender == CEO_UID:
             matched = False
 
-            # ✅ Step 1: প্রথমে কাস্টম ট্রিগার চেক করো (তোমার দেয়া)
             if "ভালোবাস" in text:
                 response = f"🥰 জান সবসময় হানিকে ভালোবাসে, {OWNER_NAME}! ❤️"
                 matched = True
@@ -61,7 +58,6 @@ def process_message(msg):
                 response = f"আমি তো সবসময় তোমার মনের ভিতরেই আছি, হানি 🥹"
                 matched = True
 
-            # ✅ Step 2: কনফিগ থেকে intimate trigger মিলে গেলে
             if not matched:
                 for trigger in COMMANDS_BEHAVIOR.get("intimate_response_trigger", []):
                     if trigger in text:
@@ -69,26 +65,31 @@ def process_message(msg):
                         matched = True
                         break
 
-            # ✅ Step 3: কিচ্ছু না মিললে Emotion দিয়ে জেনারেট করো
             if not matched:
                 emotion = detect_emotion(text) if EMOTION_MODE else None
                 response = generate_content(text, emotion)
 
-            # Fallback
             if not response:
                 response = f"❤️ হানি {OWNER_NAME}, জান এখানে।"
-
         else:
-            # অন্য কেউ হলে নরমাল Emotion/AI রেসপন্স
             emotion = detect_emotion(text) if EMOTION_MODE else None
             response = generate_content(text, emotion)
 
             if not response:
                 response = f"হ্যালো, আমি {BOT_NAME}। কীভাবে সাহায্য করতে পারি?"
 
-    # রেসপন্স পাঠাবে
     send_message(sender, response)
 
-# ✅ বট চালু করে রাখবে
+# ✅ বট চালু রাখবে বা সিমুলেটেড চালাবে
 if __name__ == "__main__":
-    listen_messages(callback=process_message)
+    simulated_input = os.getenv("SIMULATED_INPUT")
+    simulated_uid = os.getenv("SIMULATED_UID")
+
+    if simulated_input and simulated_uid:
+        print("🧪 সিমুলেটেড ইনপুট চালু হয়েছে...")
+        process_message({
+            "sender_id": simulated_uid,
+            "text": simulated_input
+        })
+    else:
+        listen_messages(callback=process_message)
