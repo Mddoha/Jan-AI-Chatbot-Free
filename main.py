@@ -129,6 +129,11 @@ def process_message(text, user_id):
 
     return response
 
+# ✅ Always-on Check Route
+@app.route("/ping")
+def ping():
+    return "Pong! Alive forever!"
+
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
     print(f"{BOT_BANGLA_NAME} Flask Webhook সার্ভার চালু হচ্ছে Port: {port} ...")
