@@ -25,14 +25,16 @@ CEO_UID = str(RELATIONSHIP.get("ceo_uid", "100015569688497"))
 TELEGRAM_TOKEN = config.get("telegram_token", "")
 TELEGRAM_API_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
 
+# এখানে VERIFY_TOKEN সংজ্ঞায়িত করলাম
+VERIFY_TOKEN = os.getenv("FB_VERIFY_TOKEN", "my_verify_token_1234")
+
 @app.route("/")
 def index():
     return f"{BOT_BANGLA_NAME} (Facebook + Telegram Flask Webhook) চলছে..."
 
-# ✅ Facebook Webhook Verification
+# ✅ Facebook Webhook Verification (GET method)
 @app.route("/webhook", methods=["GET"])
 def verify_fb():
-    VERIFY_TOKEN = os.getenv("FB_VERIFY_TOKEN", "your_verify_token_here")
     mode = request.args.get("hub.mode")
     token = request.args.get("hub.verify_token")
     challenge = request.args.get("hub.challenge")
@@ -42,7 +44,7 @@ def verify_fb():
     else:
         return "Verification failed", 403
 
-# ✅ Facebook Message Handling
+# ✅ Facebook Message Handling (POST method)
 @app.route("/webhook", methods=["POST"])
 def webhook_fb():
     data = request.get_json()
