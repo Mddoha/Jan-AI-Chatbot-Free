@@ -1,9 +1,10 @@
 name: Jan-Bot-24-7
 
 on:
+  workflow_dispatch:       # ম্যানুয়ালি GitHub UI থেকে রান করানো যাবে
   push:
     branches:
-      - main
+      - main              # main ব্রাঞ্চে push হলে রান হবে
   schedule:
     - cron: '*/30 * * * *'  # প্রতি ৩০ মিনিটে রান হবে
 
