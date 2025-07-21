@@ -25,7 +25,6 @@ CEO_UID = str(RELATIONSHIP.get("ceo_uid", "100015569688497"))
 TELEGRAM_TOKEN = config.get("telegram_token", "")
 TELEGRAM_API_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
 
-
 @app.route("/")
 def index():
     return f"{BOT_BANGLA_NAME} (Facebook + Telegram Flask Webhook) চলছে..."
@@ -63,7 +62,6 @@ def webhook_fb():
 
                     response = process_message(message_text, sender_str)
                     send_facebook_message(sender_str, response)
-
         return "EVENT_RECEIVED", 200
     return "404 Not Found", 404
 
@@ -71,7 +69,6 @@ def webhook_fb():
 @app.route("/telegram_webhook", methods=["POST"])
 def telegram_webhook():
     data = request.get_json()
-
     if "message" in data:
         chat_id = str(data["message"]["chat"]["id"])
         text = data["message"].get("text", "").strip()
@@ -79,7 +76,6 @@ def telegram_webhook():
             return "no text", 200
 
         response = process_message(text, chat_id)
-
         payload = {
             "chat_id": chat_id,
             "text": response
@@ -91,6 +87,7 @@ def telegram_webhook():
 # ✅ Unified Message Handler
 def process_message(text, user_id):
     response = None
+
     if text.startswith(PREFIX):
         command = text[len(PREFIX):].strip()
         try:
@@ -129,10 +126,10 @@ def process_message(text, user_id):
 
     return response
 
-# ✅ Always-on Check Route
+# ✅ Always-on Check Route (combined both pings)
 @app.route("/ping")
 def ping():
-    return "Pong! Alive forever!"
+    return "I am awake!", 200
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
