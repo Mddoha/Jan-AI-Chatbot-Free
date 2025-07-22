@@ -1,5 +1,14 @@
-# ✅ File: api/telegram.py
-from flask import Request, jsonify
+# path: api/telegram.py
+from http.server import BaseHTTPRequestHandler
+import json
 
-def handler(request: Request):
-    return jsonify({"message": "Telegram API OK ✅"}), 200
+class handler(BaseHTTPRequestHandler):
+    def do_POST(self):
+        content_length = int(self.headers['Content-Length'])
+        post_data = self.rfile.read(content_length)
+
+        print("Telegram Webhook Hit:", post_data.decode())
+
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b'Telegram OK')
