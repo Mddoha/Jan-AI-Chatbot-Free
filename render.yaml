@@ -10,8 +10,4 @@ services:
       - key: TELEGRAM_TOKEN
         fromSecret: true
       - key: FB_VERIFY_TOKEN
-        generateValue: true  # Render নিজে থেকেই একটি নিরাপদ টোকেন তৈরি করবে
-      # আপনি যদি আরও কোনো গোপন টোকেন (যেমন OpenAI) ব্যবহার করতে চান,
-      # তাহলে নিচের মতো করে যোগ করতে পারেন:
-      # - key: OPENAI_API_KEY
-      #   fromSecret: true
+        generateValue: true
