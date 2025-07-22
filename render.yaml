@@ -7,15 +7,11 @@ services:
     buildCommand: "pip install -r requirements.txt"
     startCommand: "python main.py"
     envVars:
-      - key: FB_PAGE_ACCESS_TOKEN
-        sync: false
+      - key: TELEGRAM_TOKEN
+        fromSecret: true
       - key: FB_VERIFY_TOKEN
-        sync: false
-      - key: TELEGRAM_BOT_TOKEN
-        sync: false
-      - key: ADMIN_UID
-        sync: false
-      - key: OPENAI_API_KEY
-        sync: false
-      - key: USE_FALLBACK_AI
-        sync: false
+        generateValue: true  # Render নিজে থেকেই একটি নিরাপদ টোকেন তৈরি করবে
+      # আপনি যদি আরও কোনো গোপন টোকেন (যেমন OpenAI) ব্যবহার করতে চান,
+      # তাহলে নিচের মতো করে যোগ করতে পারেন:
+      # - key: OPENAI_API_KEY
+      #   fromSecret: true
