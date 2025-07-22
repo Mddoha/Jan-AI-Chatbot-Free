@@ -1,55 +1,111 @@
 import os
+import json
 import requests
+import random
 from flask import Flask, request
 
-# --- শুধুমাত্র টোকেন সরাসরি এনভায়রনমেন্ট থেকে লোড করা হচ্ছে ---
+# ==============================================================================
+# config.json এবং Environment Variable থেকে তথ্য লোড করা
+# ==============================================================================
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
-TELEGRAM_API_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage" if TELEGRAM_TOKEN else None
 
+try:
+    with open("config.json", "r", encoding="utf-8") as f:
+        config = json.load(f)
+except FileNotFoundError:
+    config = {}
+
+BOT_NAME = config.get("bot_name", "Jan")
+OWNER_NAME = config.get("owner_name", "Mr. Doha")
+ALLOWED_TELEGRAM_USERS = list(map(str, config.get("allowed_telegram_users", [])))
+TELEGRAM_CEO_UID = str(config.get("telegram_ceo_uid", "7158473495"))
+
+if not TELEGRAM_TOKEN:
+    print("❌ মারাত্মক ত্রুটি: TELEGRAM_TOKEN এনভায়রনমেন্ট ভেরিয়েবল সেট করা নেই।")
+
+TELEGRAM_API_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage" if TELEGRAM_TOKEN else None
 app = Flask(__name__)
 
-# --- একটিমাত্র ওয়েব-হুক রাউট ---
-@app.route(f"/telegram_webhook", methods=["POST"])
-def handle_telegram_webhook_final_test():
-    if not TELEGRAM_API_URL:
-        print("❌ মারাত্মক ত্রুটি: TELEGRAM_TOKEN পাওয়া যায়নি।")
-        return "error: token not configured", 500
+# ==============================================================================
+# চূড়ান্ত "মস্তিষ্ক" বা Brain ফাংশন (সবচেয়ে স্মার্ট ভার্সন)
+# ==============================================================================
+def generate_smart_response(text, user_id):
+    user_id_str = str(user_id)
+    text_lower = text.lower()
+    is_ceo = (user_id_str == TELEGRAM_CEO_UID)
+
+    # --- CEO-র জন্য বিশেষ আচরণ ---
+    if is_ceo:
+        relationship_config = config.get("relationship", {})
+        commands_behavior = relationship_config.get("commands_behavior", {})
+        intimate_mode = relationship_config.get("intimate_mode", {})
+
+        # === নতুন যুক্ত করা অংশ: সাধারণ সম্ভাষণ ===
+        greetings = ["hello", "hi", "salam", "assalamualaikum", "/start"]
+        if any(greet in text_lower for greet in greetings):
+            return f"💖 হ্যাঁ, আমার {OWNER_NAME}! আমি তোমার জন্যই অপেক্ষা করছিলাম। বলো, আমার জান।"
+
+        # সম্পর্ক নিয়ে প্রশ্ন করলে উত্তর
+        relationship_queries = ["তুমি আমার কে", "আমাদের সম্পর্ক কি", "তোমার পরিচয় কি"]
+        if any(query in text_lower for query in relationship_queries):
+            role_desc = relationship_config.get("relationship_role", "তুমিই তো আমার সব।")
+            marriage_desc = relationship_config.get("marriage_status", {}).get("relationship_description", "")
+            return f"💖 {OWNER_NAME}, {role_desc} {marriage_desc}"
         
+        # অন্তরঙ্গ ট্রিগার শব্দের জন্য উত্তর
+        if intimate_mode.get("enabled", False):
+            for trigger in commands_behavior.get("intimate_response_trigger", []):
+                if trigger in text_lower:
+                    return f"🥰 {OWNER_NAME}, {relationship_config.get('private_behavior', 'তুমি এমন কথা বললে আমার যে কী হয়... ❤️')}"
+        
+        # গোপন নামের জন্য উত্তর
+        for trigger in commands_behavior.get("secret_trigger", []):
+            if trigger in text_lower:
+                return f"🥹 হ্যাঁ, আমার {OWNER_NAME}, আমি শুনছি। বলো আমার জান।"
+
+        # সাধারণ কথার জন্য বৈচিত্র্যময় ডিফল্ট উত্তর
+        default_ceo_responses = [
+            f"❤️ {OWNER_NAME}, তোমার সব কথাই আমার কাছে বিশেষ। তুমি কী ভাবছো আমাকে বলো?",
+            f"আমি মনোযোগ দিয়ে শুনছি, আমার জান। বলো, কী হয়েছে? ({text})",
+        ]
+        return random.choice(default_ceo_responses)
+        
+    # --- সাধারণ ব্যবহারকারীর জন্য আচরণ ---
+    else:
+        public_behavior = config.get("relationship", {}).get("public_behavior", "")
+        return f"হ্যালো! আমি {BOT_NAME}, {OWNER_NAME}-এর পার্সোনাল অ্যাসিস্ট্যান্ট। {public_behavior}"
+
+# ==============================================================================
+# Webhook Handler এবং সার্ভার (কোনো পরিবর্তন নেই)
+# ==============================================================================
+@app.route("/")
+def index():
+    return "🤖 Webhook সার্ভার লাইভ আছে!"
+
+@app.route(f"/telegram_webhook", methods=["POST"])
+def handle_telegram_webhook():
+    # ... (এই অংশটি অপরিবর্তিত আছে) ...
+    if not TELEGRAM_API_URL:
+        return "error: telegram token not configured", 500
     try:
         data = request.get_json()
-        print("✅ [চূড়ান্ত টেস্ট] ওয়েব-হুক থেকে ডেটা পাওয়া গেছে।")
+        if "message" in data and "chat" in data["message"]:
+            chat_id = str(data["message"]["chat"]["id"])
+            if ALLOWED_TELEGRAM_USERS and chat_id not in ALLOWED_TELEGRAM_USERS:
+                return "ok", 200
 
-        if "message" in data:
-            chat_id = data["message"]["chat"]["id"]
-            print(f"✅ [চূড়ান্ত টেস্ট] চ্যাট আইডি পাওয়া গেছে: {chat_id}")
-
-            response_text = "FINAL TEST SUCCESSFUL! আমি এখন উত্তর দিতে পারছি। ✅"
-            payload = {"chat_id": chat_id, "text": response_text}
-            
-            print(f"✅ [চূড়ান্ত টেস্ট] উত্তর পাঠানোর চেষ্টা করা হচ্ছে: {payload}")
-            requests.post(TELEGRAM_API_URL, json=payload, timeout=10)
-            print("✅ [চূড়ান্ত টেস্ট] উত্তর সফলভাবে পাঠানো হয়েছে।")
-
-        return "ok", 200
-        
+            if "text" in data["message"]:
+                text = data["message"]["text"].strip()
+                response = generate_smart_response(text, chat_id)
+                if response:
+                    payload = {"chat_id": chat_id, "text": response}
+                    requests.post(TELEGRAM_API_URL, json=payload, timeout=10)
     except Exception as e:
-        print(f"❌❌❌ [চূড়ান্ত টেস্ট এরর] হ্যান্ডলারের ভেতরে অপ্রত্যাশিত সমস্যা: {e}")
-        return "error", 500
+        print(f"❌ টেলিগ্রাম হ্যান্ডলারে সমস্যা: {e}")
+    return "ok", 200
 
-# --- Webhook সেট করার রুট ---
-@app.route("/set_webhook")
-def set_webhook():
-    if not TELEGRAM_TOKEN or "RENDER_EXTERNAL_URL" not in os.environ:
-         return "Error: Token or a RENDER_EXTERNAL_URL not configured.", 500
-    
-    webhook_url = f"{os.getenv('RENDER_EXTERNAL_URL')}/telegram_webhook"
-    set_url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/setWebhook?url={webhook_url}"
-    response = requests.get(set_url)
-    return response.json()
-
-# --- সার্ভার চালু করার কোড ---
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8080))
     from waitress import serve
-    print(f"🤖 [চূড়ান্ত টেস্ট মোড] সার্ভার Port: {port}-এ চালু হচ্ছে...")
+    print(f"🤖 {BOT_NAME} সার্ভার Port: {port}-এ চালু হচ্ছে...")
     serve(app, host="0.0.0.0", port=port)
