@@ -1,0 +1,22 @@
+name: Setup UptimeRobot Monitor
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  setup-uptimerobot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run curl to add UptimeRobot monitor
+        run: |
+          curl -X POST https://api.uptimerobot.com/v2/newMonitor \
+          -H 'Content-Type: application/json' \
+          -d '{
+            "api_key": "u3038492-1173a67cf6065e2861e3f141",
+            "format": "json",
+            "type": 1,
+            "friendly_name": "Jan Bot",
+            "url": "https://db49dbbd-69ff-4dea-9e17-dc9323f4c455-00-3uawvzwjd4v2k.pike.replit.dev/",
+            "interval": 300
+          }'
