@@ -11,4 +11,4 @@ jobs:
     steps:
       - name: 🔔 Wake Vercel Frontend
         run: |
-          curl -sSf https://your-vercel-app-name.vercel.app/ > /dev/null || true
+          curl -sSf https://jan-ai-chatbot.vercel.app/ > /dev/null || true
