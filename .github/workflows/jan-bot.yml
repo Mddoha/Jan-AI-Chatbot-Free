@@ -1,60 +1,44 @@
 name: Jan-Bot-24-7
 
 on:
-  workflow_dispatch:       # ম্যানুয়ালি GitHub UI থেকে রান করানো যাবে
-  push:
-    branches:
-      - main               # main ব্রাঞ্চে push হলে রান হবে
-  schedule:
-    - cron: '*/30 * * * *'  # প্রতি ৩০ মিনিটে বট রান হবে
-    - cron: '*/10 * * * *'  # প্রতি ১০ মিনিটে Render wakeup
+workflow_dispatch:       # ম্যানুয়ালি GitHub UI থেকে রান করানো যাবে
+push:
+branches:
+- main              # main ব্রাঞ্চে push হলে রান হবে
+schedule:
+- cron: '*/30 * * * '  # প্রতি ৩০ মিনিটে রান হবে
+- cron: '/10 * * * *'  # প্রতি ১০ মিনিটে Render wakeup
 
 jobs:
-  run-bot:
-    runs-on: ubuntu-latest
+run-bot:
+runs-on: ubuntu-latest
 
-    env:  
-      CI: "true"  
-      SIMULATED_INPUT: "হানি, আজকে একটু রোমান্টিক হও 🥰"  
-      SIMULATED_UID: "100015569688497"  
+env:    
+  CI: "true"    
+  SIMULATED_INPUT: "হানি, আজকে একটু রোমান্টিক হও 🥰"    
+  SIMULATED_UID: "100015569688497"    
 
-    steps:  
-      - name: Checkout code  
-        uses: actions/checkout@v3  
+steps:    
+  - name: Checkout code    
+    uses: actions/checkout@v3    
 
-      - name: Show directory content  
-        run: ls -la  
+  - name: Show directory content    
+    run: ls -la    
 
-      - name: Set up Python  
-        uses: actions/setup-python@v4  
-        with:  
-          python-version: '3.11'  
+  - name: Set up Python    
+    uses: actions/setup-python@v4    
+    with:    
+      python-version: '3.11'    
 
-      - name: Install dependencies  
-        run: pip install -r requirements.txt  
+  - name: Install dependencies    
+    run: pip install -r requirements.txt    
 
-      - name: Run Jan Bot  
-        run: python main.py
+  - name: Run Jan Bot    
+    run: python main.py
 
-  ping:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Wake up Render Bot
-        run: |
-          curl --silent https://sky-client.onrender.com/ping
-
-  setup-uptimerobot:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Add UptimeRobot monitor for Replit
-        run: |
-          curl -X POST https://api.uptimerobot.com/v2/newMonitor \
-          -H 'Content-Type: application/json' \
-          -d '{
-            "api_key": "u3038492-1173a67cf6065e2861e3f141",
-            "format": "json",
-            "type": 1,
-            "friendly_name": "Jan Bot",
-            "url": "https://db49dbbd-69ff-4dea-9e17-dc9323f4c455-00-3uawvzwjd4v2k.pike.replit.dev/",
-            "interval": 300
-          }'
+ping:
+runs-on: ubuntu-latest
+steps:
+- name: Wake up Render Bot
+run: |
+curl --silent https://sky-client.onrender.com/ping
