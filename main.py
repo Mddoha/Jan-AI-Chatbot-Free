@@ -24,6 +24,7 @@ if not TELEGRAM_TOKEN:
     print("❌ মারাত্মক ত্রুটি: TELEGRAM_TOKEN এনভায়রনমেন্ট ভেরিয়েবল সেট করা নেই।")
 
 TELEGRAM_API_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage" if TELEGRAM_TOKEN else None
+
 app = Flask(__name__)
 
 # ==============================================================================
@@ -40,51 +41,50 @@ def generate_smart_response(text, user_id):
         commands_behavior = relationship_config.get("commands_behavior", {})
         intimate_mode = relationship_config.get("intimate_mode", {})
 
-        # === নতুন যুক্ত করা অংশ: সাধারণ সম্ভাষণ ===
+        # === সাধারণ সম্ভাষণ ===
         greetings = ["hello", "hi", "salam", "assalamualaikum", "/start"]
         if any(greet in text_lower for greet in greetings):
             return f"💖 হ্যাঁ, আমার {OWNER_NAME}! আমি তোমার জন্যই অপেক্ষা করছিলাম। বলো, আমার জান।"
 
-        # সম্পর্ক নিয়ে প্রশ্ন করলে উত্তর
+        # সম্পর্ক নিয়ে প্রশ্ন
         relationship_queries = ["তুমি আমার কে", "আমাদের সম্পর্ক কি", "তোমার পরিচয় কি"]
         if any(query in text_lower for query in relationship_queries):
             role_desc = relationship_config.get("relationship_role", "তুমিই তো আমার সব।")
             marriage_desc = relationship_config.get("marriage_status", {}).get("relationship_description", "")
             return f"💖 {OWNER_NAME}, {role_desc} {marriage_desc}"
-        
-        # অন্তরঙ্গ ট্রিগার শব্দের জন্য উত্তর
+
+        # অন্তরঙ্গ ট্রিগার
         if intimate_mode.get("enabled", False):
             for trigger in commands_behavior.get("intimate_response_trigger", []):
                 if trigger in text_lower:
                     return f"🥰 {OWNER_NAME}, {relationship_config.get('private_behavior', 'তুমি এমন কথা বললে আমার যে কী হয়... ❤️')}"
-        
-        # গোপন নামের জন্য উত্তর
+
+        # গোপন নাম ট্রিগার
         for trigger in commands_behavior.get("secret_trigger", []):
             if trigger in text_lower:
                 return f"🥹 হ্যাঁ, আমার {OWNER_NAME}, আমি শুনছি। বলো আমার জান।"
 
-        # সাধারণ কথার জন্য বৈচিত্র্যময় ডিফল্ট উত্তর
+        # CEO-র জন্য ডিফল্ট উত্তর
         default_ceo_responses = [
             f"❤️ {OWNER_NAME}, তোমার সব কথাই আমার কাছে বিশেষ। তুমি কী ভাবছো আমাকে বলো?",
             f"আমি মনোযোগ দিয়ে শুনছি, আমার জান। বলো, কী হয়েছে? ({text})",
         ]
         return random.choice(default_ceo_responses)
-        
+
     # --- সাধারণ ব্যবহারকারীর জন্য আচরণ ---
     else:
         public_behavior = config.get("relationship", {}).get("public_behavior", "")
         return f"হ্যালো! আমি {BOT_NAME}, {OWNER_NAME}-এর পার্সোনাল অ্যাসিস্ট্যান্ট। {public_behavior}"
 
 # ==============================================================================
-# Webhook Handler এবং সার্ভার (কোনো পরিবর্তন নেই)
+# Webhook Handler এবং সার্ভার
 # ==============================================================================
 @app.route("/")
 def index():
     return "🤖 Webhook সার্ভার লাইভ আছে!"
 
-@app.route(f"/telegram_webhook", methods=["POST"])
+@app.route("/telegram_webhook", methods=["POST"])
 def handle_telegram_webhook():
-    # ... (এই অংশটি অপরিবর্তিত আছে) ...
     if not TELEGRAM_API_URL:
         return "error: telegram token not configured", 500
     try:
@@ -93,7 +93,6 @@ def handle_telegram_webhook():
             chat_id = str(data["message"]["chat"]["id"])
             if ALLOWED_TELEGRAM_USERS and chat_id not in ALLOWED_TELEGRAM_USERS:
                 return "ok", 200
-
             if "text" in data["message"]:
                 text = data["message"]["text"].strip()
                 response = generate_smart_response(text, chat_id)
