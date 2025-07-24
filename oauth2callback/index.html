@@ -1,33 +1,12 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Jan AI Callback</title>
-    <meta charset="utf-8" />
-    <script>
-      // Google থেকে redirect হয়ে আসার পর token extract করে দেখাবে
-      function getTokenFromUrl() {
-        const urlParams = new URLSearchParams(window.location.hash.substr(1));
-        const accessToken = urlParams.get('access_token');
-        const tokenType = urlParams.get('token_type');
-        const expiresIn = urlParams.get('expires_in');
-
-        if (accessToken) {
-          document.getElementById('token-display').innerText = `
-Access Token: ${accessToken}
-Token Type: ${tokenType}
-Expires In: ${expiresIn} seconds
-          `.trim();
-        } else {
-          document.getElementById('token-display').innerText =
-            "❌ Token not found. Maybe permission was denied or error occurred.";
-        }
-      }
-
-      window.onload = getTokenFromUrl;
-    </script>
+    <title>OAuth2 Callback</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
   </head>
   <body>
-    <h2>✅ Google OAuth Callback Received</h2>
-    <pre id="token-display">Loading token...</pre>
+    <h1>✅ Authorization Success!</h1>
+    <p>You may now close this tab.</p>
   </body>
 </html>
