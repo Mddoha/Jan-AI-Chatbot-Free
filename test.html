@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Jan AI Login Test</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #f0f0f0, #cfe2f3);
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+
+    h1 {
+      color: #222;
+      margin-bottom: 30px;
+    }
+
+    .login-btn {
+      background-color: #4285F4;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s;
+      text-decoration: none;
+    }
+
+    .login-btn:hover {
+      background-color: #2a6ad7;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🤖 Login to Jan AI Bot</h1>
+
+  <a class="login-btn"
+     href="https://accounts.google.com/o/oauth2/v2/auth?client_id=YOUR_CLIENT_ID_HERE&redirect_uri=https://mddoha.github.io/Jan-AI-Callback-Handler/callback.html&response_type=code&scope=https://www.googleapis.com/auth/blogger&access_type=offline&prompt=consent">
+    Login with Google
+  </a>
+
+</body>
+</html>
