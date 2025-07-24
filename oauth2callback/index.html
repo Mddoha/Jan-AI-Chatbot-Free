@@ -1,43 +1,33 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Callback</title>
-  <script>
-    async function getToken() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const code = urlParams.get('code');
-      if (!code) {
-        document.body.innerHTML = "<h2>❌ No code received. Login failed.</h2>";
-        return;
+  <head>
+    <title>Jan AI Callback</title>
+    <meta charset="utf-8" />
+    <script>
+      // Google থেকে redirect হয়ে আসার পর token extract করে দেখাবে
+      function getTokenFromUrl() {
+        const urlParams = new URLSearchParams(window.location.hash.substr(1));
+        const accessToken = urlParams.get('access_token');
+        const tokenType = urlParams.get('token_type');
+        const expiresIn = urlParams.get('expires_in');
+
+        if (accessToken) {
+          document.getElementById('token-display').innerText = `
+Access Token: ${accessToken}
+Token Type: ${tokenType}
+Expires In: ${expiresIn} seconds
+          `.trim();
+        } else {
+          document.getElementById('token-display').innerText =
+            "❌ Token not found. Maybe permission was denied or error occurred.";
+        }
       }
 
-      const client_id = 'YOUR_CLIENT_ID_HERE';
-      const client_secret = 'YOUR_CLIENT_SECRET_HERE';
-      const redirect_uri = 'https://mddoha.github.io/Jan-AI-Callback-Handler/callback.html';
-
-      const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: new URLSearchParams({
-          code,
-          client_id,
-          client_secret,
-          redirect_uri,
-          grant_type: "authorization_code"
-        })
-      });
-
-      const tokenData = await tokenResponse.json();
-      console.log(tokenData);
-      document.body.innerHTML = `<h2>✅ Token Received:</h2><pre>${JSON.stringify(tokenData, null, 2)}</pre>`;
-    }
-
-    window.onload = getToken;
-  </script>
-</head>
-<body>
-  <h2>⏳ Getting Token...</h2>
-</body>
+      window.onload = getTokenFromUrl;
+    </script>
+  </head>
+  <body>
+    <h2>✅ Google OAuth Callback Received</h2>
+    <pre id="token-display">Loading token...</pre>
+  </body>
 </html>
